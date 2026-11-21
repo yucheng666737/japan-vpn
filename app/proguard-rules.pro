@@ -1,0 +1,2 @@
+-keep class de.blinkt.openvpn.** { *; }
+-dontwarn de.blinkt.openvpn.**

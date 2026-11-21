@@ -1,0 +1,22 @@
+# Gradle & Build outputs
+.gradle/
+build/
+app/build/
+vpnLib/build/
+captures/
+
+# Local environment & signing secrets (NEVER commit!)
+local.properties
+keystore.properties
+*.jks
+*.keystore
+
+# Compiled APKs (distribute via GitHub Releases instead)
+*.apk
+*.aab
+
+# IDE files
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
