@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Japan VPN - 日本專屬代理",
+  "version": "1.0.0",
+  "description": "專為連線日本設計的 Chrome 代理擴充功能：自動抓取日本節點、強制排除 219 開頭 IP、失敗或斷流自動切換下一個節點。",
+  "permissions": [
+    "proxy",
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Japan VPN",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

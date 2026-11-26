@@ -1,0 +1,332 @@
+<Window x:Class="JapanVPN.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Japan VPN - 日本專屬 VPN"
+        Width="440"
+        Height="740"
+        MinWidth="400"
+        MinHeight="640"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BgBrush}">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="BgBrush" Color="#F8F9FA" />
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="SurfaceAltBrush" Color="#F1F3F5" />
+        <SolidColorBrush x:Key="TextBrush" Color="#111827" />
+        <SolidColorBrush x:Key="TextMutedBrush" Color="#6B7280" />
+        <SolidColorBrush x:Key="BorderBrushColor" Color="#E5E7EB" />
+        <SolidColorBrush x:Key="CrimsonSoftBrush" Color="#FFE4E6" />
+        <SolidColorBrush x:Key="GreenSoftBrush" Color="#DCFCE7" />
+        <SolidColorBrush x:Key="AmberSoftBrush" Color="#FFEDD5" />
+
+        <Style x:Key="FlatIconBtn" TargetType="Button">
+            <Setter Property="Width" Value="36" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceAltBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CardButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushColor}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="16"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#C62828" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Main View -->
+        <ScrollViewer x:Name="MainView" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="20,14,20,18">
+                <!-- Top Bar -->
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Style="{StaticResource FlatIconBtn}" ToolTip="連線紀錄" Click="BtnLogs_Click">
+                        <TextBlock Text="&#xE756;" FontFamily="Segoe MDL2 Assets" FontSize="16" />
+                    </Button>
+
+                    <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="日本專屬 VPN (OpenVPN)" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" />
+                        <TextBlock Text="Japan VPN" FontSize="19" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <Button x:Name="BtnRefreshMain" Style="{StaticResource FlatIconBtn}" ToolTip="重新抓取日本節點" Click="BtnRefresh_Click">
+                            <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="16" />
+                        </Button>
+                        <Button x:Name="BtnTheme" Style="{StaticResource FlatIconBtn}" ToolTip="切換深/淺色主題" Click="BtnTheme_Click" Margin="4,0,0,0">
+                            <TextBlock x:Name="TxtThemeGlyph" Text="&#xE708;" FontFamily="Segoe MDL2 Assets" FontSize="16" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- OpenVPN Missing Banner -->
+                <Border x:Name="BannerOpenVpnMissing"
+                        Visibility="Collapsed"
+                        Background="{DynamicResource AmberSoftBrush}"
+                        BorderBrush="#EA580C"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        Padding="12"
+                        Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="尚未偵測到 OpenVPN 核心" FontSize="13" FontWeight="Bold" Foreground="#9A3412" />
+                        <TextBlock Text="Windows 桌面版需安裝 OpenVPN 才能建立全電腦 VPN 通道（可一鍵安裝或手動下載）。"
+                                   TextWrapping="Wrap" FontSize="11.5" Foreground="#9A3412" Margin="0,3,0,8" />
+                        <WrapPanel>
+                            <Button x:Name="BtnInstallOpenVpn" Content="一鍵安裝 OpenVPN" Click="BtnInstallOpenVpn_Click"
+                                    Padding="10,6" Margin="0,0,8,4" Background="#EA580C" Foreground="White" BorderThickness="0" FontWeight="SemiBold" Cursor="Hand" />
+                            <Button Content="手動下載頁" Click="BtnManualOpenVpn_Click"
+                                    Padding="10,6" Margin="0,0,8,4" Background="White" Foreground="#9A3412" BorderBrush="#EA580C" BorderThickness="1" Cursor="Hand" />
+                            <Button Content="重新偵測" Click="BtnRecheckOpenVpn_Click"
+                                    Padding="10,6" Margin="0,0,0,4" Background="White" Foreground="#9A3412" BorderBrush="#EA580C" BorderThickness="1" Cursor="Hand" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Connection Timer -->
+                <TextBlock x:Name="TxtTimer"
+                           Text="00:00:00"
+                           HorizontalAlignment="Center"
+                           FontSize="22"
+                           FontWeight="Medium"
+                           Foreground="{DynamicResource TextMutedBrush}"
+                           Margin="0,4,0,14" />
+
+                <!-- Power Button with Halo -->
+                <Grid Width="176" Height="176" HorizontalAlignment="Center" Margin="0,0,0,14">
+                    <Ellipse x:Name="PowerHalo" Width="172" Height="172" Fill="{DynamicResource CrimsonSoftBrush}" />
+                    <Button x:Name="BtnPower" Width="130" Height="130" Click="BtnPower_Click" Cursor="Hand" BorderThickness="0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="CircleBd" Background="{TemplateBinding Background}" CornerRadius="65">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.28" Color="#000000" />
+                                    </Border.Effect>
+                                    <TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="White"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <Button.Background>
+                            <SolidColorBrush Color="#C62828" />
+                        </Button.Background>
+                    </Button>
+                </Grid>
+
+                <!-- Status Block -->
+                <TextBlock Text="連線狀態：" HorizontalAlignment="Center" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}" />
+                <TextBlock x:Name="TxtStatusTitle" Text="未連線" HorizontalAlignment="Center" FontSize="19" FontWeight="Bold" Foreground="#C62828" Margin="0,2,0,3" />
+                <TextBlock x:Name="TxtStatusDetail" Text="點擊電源鍵自動連線最佳日本節點" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,14" />
+
+                <!-- Speed Pills -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
+                    <Border Background="{DynamicResource SurfaceAltBrush}" CornerRadius="12" Padding="14,8" Margin="0,0,12,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="↓ " Foreground="#16A34A" FontWeight="Bold" FontSize="13" />
+                            <TextBlock x:Name="TxtDownloadSpeed" Text="0 B/s" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Background="{DynamicResource SurfaceAltBrush}" CornerRadius="12" Padding="14,8">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="↑ " Foreground="#0284C7" FontWeight="Bold" FontSize="13" />
+                            <TextBlock x:Name="TxtUploadSpeed" Text="0 B/s" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Japan Location Card -->
+                <Button Style="{StaticResource CardButtonStyle}" Padding="14,13" Margin="0,0,0,12" Click="BtnOpenServers_Click">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Width="46" Height="30" CornerRadius="6" Background="White" BorderBrush="{DynamicResource BorderBrushColor}" BorderThickness="1">
+                            <Ellipse Width="16" Height="16" Fill="#BC002D" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center">
+                            <TextBlock Text="JAPAN" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" />
+                            <TextBlock x:Name="TxtSelectedServerMeta" Text="載入日本節點中..." FontSize="12" Foreground="{DynamicResource TextMutedBrush}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+
+                        <Border Grid.Column="2" Width="30" Height="30" CornerRadius="15" Background="{DynamicResource SurfaceAltBrush}">
+                            <TextBlock Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="{DynamicResource TextMutedBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                </Button>
+
+                <!-- Smart Controls Card -->
+                <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushColor}" BorderThickness="1" CornerRadius="16" Padding="14">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="&#xEA18;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#C62828" VerticalAlignment="Center" />
+                            <TextBlock x:Name="TxtFilterSummary" Text="已自動排除 0 個 219 開頭連線 • 可用 0 個日本節點" FontSize="12.5" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextBrush}" Margin="8,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <CheckBox x:Name="ChkFailover" IsChecked="True" Checked="ChkOption_Changed" Unchecked="ChkOption_Changed" Margin="0,0,0,8" Foreground="{DynamicResource TextBrush}">
+                            <StackPanel Margin="4,0,0,0">
+                                <TextBlock Text="無法連線／斷線時自動重連其他節點" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}" />
+                                <TextBlock Text="偵測超時、無回應或斷線時自動切換下一個日本 IP" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" />
+                            </StackPanel>
+                        </CheckBox>
+
+                        <CheckBox x:Name="ChkAutoRefresh" IsChecked="True" Checked="ChkOption_Changed" Unchecked="ChkOption_Changed" Margin="0,0,0,8" Foreground="{DynamicResource TextBrush}">
+                            <StackPanel Margin="4,0,0,0">
+                                <TextBlock Text="背景隨時自動抓取新節點 (每 3 分鐘)" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}" />
+                                <TextBlock x:Name="TxtRefreshTime" Text="最後更新：尚未更新" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" />
+                            </StackPanel>
+                        </CheckBox>
+
+                        <CheckBox x:Name="ChkHealth" IsChecked="True" Checked="ChkOption_Changed" Unchecked="ChkOption_Changed" Foreground="{DynamicResource TextBrush}">
+                            <StackPanel Margin="4,0,0,0">
+                                <TextBlock Text="防假連線／斷流自動換線" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}" />
+                                <TextBlock Text="連線中每 10 秒雙端點檢測，連續 2 次無回應自動切換" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" />
+                            </StackPanel>
+                        </CheckBox>
+
+                        <Button x:Name="BtnSwitchNext"
+                                Visibility="Collapsed"
+                                Content="切換下一個日本節點"
+                                Click="BtnSwitchNext_Click"
+                                Margin="0,12,0,0"
+                                Padding="12,10"
+                                Background="{DynamicResource CrimsonSoftBrush}"
+                                Foreground="#C62828"
+                                FontWeight="Bold"
+                                BorderThickness="0"
+                                Cursor="Hand" />
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="提示：關閉視窗會縮小至右下角系統匣繼續運作；右鍵系統匣可一鍵換線或完全結束。"
+                           FontSize="11" Foreground="{DynamicResource TextMutedBrush}" TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,0" />
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Server List View -->
+        <Grid x:Name="ServersView" Visibility="Collapsed" Margin="16,12,16,16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Style="{StaticResource FlatIconBtn}" Click="BtnBackToMain_Click" ToolTip="返回">
+                    <TextBlock Text="&#xE72B;" FontFamily="Segoe MDL2 Assets" FontSize="16" />
+                </Button>
+                <TextBlock Grid.Column="1" Text="選擇日本節點" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center" Margin="6,0,0,0" />
+                <Button Grid.Column="2" Style="{StaticResource FlatIconBtn}" Click="BtnRefresh_Click" ToolTip="重新抓取">
+                    <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="16" />
+                </Button>
+            </Grid>
+
+            <TextBox x:Name="TxtSearch"
+                     Grid.Row="1"
+                     Padding="10,8"
+                     FontSize="13"
+                     Background="{DynamicResource SurfaceBrush}"
+                     Foreground="{DynamicResource TextBrush}"
+                     BorderBrush="{DynamicResource BorderBrushColor}"
+                     BorderThickness="1"
+                     Margin="0,0,0,8"
+                     TextChanged="TxtSearch_TextChanged" />
+
+            <Border Grid.Row="2" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="16" Padding="4" Margin="0,0,0,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="#C62828" CornerRadius="12" Padding="8,7">
+                        <TextBlock x:Name="TxtListAvail" Text="日本免費節點 (0)" Foreground="White" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" />
+                    </Border>
+                    <TextBlock x:Name="TxtListExcluded" Grid.Column="1" Text="已排除 219 開頭 (0)" Foreground="{DynamicResource TextMutedBrush}"
+                               FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+
+            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="ServerListPanel" />
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Logs Modal Overlay -->
+        <Grid x:Name="LogsOverlay" Visibility="Collapsed" Background="#80000000">
+            <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushColor}" BorderThickness="1"
+                    CornerRadius="16" Margin="20" Padding="14" VerticalAlignment="Center" MaxHeight="520">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="連線與自動切換紀錄" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" Margin="0,0,0,10" />
+
+                    <TextBox x:Name="TxtLogs" Grid.Row="1" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                             FontFamily="Consolas" FontSize="11.5" Height="340" Padding="8"
+                             Background="{DynamicResource SurfaceAltBrush}" Foreground="{DynamicResource TextBrush}" BorderThickness="0" />
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                        <Button Content="清除紀錄" Click="BtnClearLogs_Click" Padding="12,6" Margin="0,0,8,0" Background="Transparent" Foreground="{DynamicResource TextMutedBrush}" BorderThickness="0" Cursor="Hand" />
+                        <Button Content="關閉" Click="BtnCloseLogs_Click" Padding="14,6" Background="#C62828" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
