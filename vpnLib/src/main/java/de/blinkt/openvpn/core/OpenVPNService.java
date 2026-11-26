@@ -88,8 +88,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     public static final String EXTRA_START_REASON = "de.blinkt.openvpn.startReason";
 
     public static final String DISCONNECT_VPN = "de.blinkt.openvpn.DISCONNECT_VPN";
-    public static final String NOTIFICATION_CHANNEL_BG_ID = "openvpn_bg";
-    public static final String NOTIFICATION_CHANNEL_NEWSTATUS_ID = "openvpn_newstat";
+    public static final String NOTIFICATION_CHANNEL_BG_ID = "jpvpn_status_v2";
+    public static final String NOTIFICATION_CHANNEL_NEWSTATUS_ID = "jpvpn_status_v2";
     public static final String NOTIFICATION_CHANNEL_USERREQ_ID = "openvpn_userreq";
     public static final String NOTIFICATION_CHANNEL_ERROR_ID = "openvpn_error";
 
@@ -283,7 +283,14 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     @Override
     public void onRevoke() {
+        mIsUserDisconnect = true;
         VpnStatus.logError(R.string.permission_revoked);
+        VpnStatus.updateStateString("USER_VPN_REVOKED", "", R.string.permission_revoked, ConnectionStatus.LEVEL_NOTCONNECTED);
+
+        Intent revokedIntent = new Intent("com.jpvpn.app.ACTION_SYSTEM_REVOKED");
+        revokedIntent.setPackage(getPackageName());
+        sendBroadcast(revokedIntent);
+
         /* onRevoke() can be called before the VPN is fully started (e.g. the service
          * was only created for the startForeground() deadline, or startVpn() bailed out
          * early), so mManagement may still be null. Capturing it and posting a lambda
@@ -364,10 +371,15 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     @RequiresApi(Build.VERSION_CODES.O)
     private String createNotificationChannel(String channelId, String channelName) {
+        String displayName = NOTIFICATION_CHANNEL_BG_ID.equals(channelId)
+                ? "Japan VPN 連線狀態"
+                : channelName;
         NotificationChannel chan = new NotificationChannel(channelId,
-                channelName, NotificationManager.IMPORTANCE_NONE);
-        chan.setLightColor(Color.BLUE);
-        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+                displayName, NotificationManager.IMPORTANCE_LOW);
+        chan.setSound(null, null);
+        chan.enableVibration(false);
+        chan.setShowBadge(false);
+        chan.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
         NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         service.createNotificationChannel(chan);
         return channelId;
@@ -1496,8 +1508,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             } else {
                 mDisplayBytecount = false;
                 if ((level == ConnectionStatus.LEVEL_NOTCONNECTED || level == ConnectionStatus.LEVEL_AUTH_FAILED)
-                        && mWasConnected && !mIsUserDisconnect) {
-                    triggerDisconnectNotification();
+                        && mWasConnected) {
                     mWasConnected = false;
                 }
             }

@@ -19,11 +19,15 @@ class VpnNotificationActionReceiver : BroadcastReceiver() {
                 Toast.makeText(context, "已中斷日本 VPN 連線", Toast.LENGTH_SHORT).show()
                 app.vpnManager.disconnect()
             }
+            ACTION_SYSTEM_REVOKED -> {
+                app.vpnManager.onSystemVpnRevoked()
+            }
         }
     }
 
     companion object {
         const val ACTION_SWITCH_NEXT = "com.jpvpn.app.ACTION_SWITCH_NEXT"
         const val ACTION_DISCONNECT = "com.jpvpn.app.ACTION_DISCONNECT"
+        const val ACTION_SYSTEM_REVOKED = "com.jpvpn.app.ACTION_SYSTEM_REVOKED"
     }
 }

@@ -56,6 +56,7 @@
             <intent-filter>
                 <action android:name="com.jpvpn.app.ACTION_SWITCH_NEXT" />
                 <action android:name="com.jpvpn.app.ACTION_DISCONNECT" />
+                <action android:name="com.jpvpn.app.ACTION_SYSTEM_REVOKED" />
             </intent-filter>
         </receiver>
     </application>

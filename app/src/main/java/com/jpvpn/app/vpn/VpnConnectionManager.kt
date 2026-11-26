@@ -292,6 +292,36 @@ class VpnConnectionManager(private val appContext: Context) :
         }
     }
 
+    fun onSystemVpnRevoked() {
+        userWantsConnected = false
+        activeSessionId++
+        currentAttemptId++
+        currentAttemptResult?.complete(AttemptOutcome.Cancelled)
+        currentAttemptResult = null
+        connectJob?.cancel()
+        connectJob = null
+        reconnectGraceJob?.cancel()
+        reconnectGraceJob = null
+        healthCheckJob?.cancel()
+        healthCheckJob = null
+        stopTimer()
+
+        appendLog("已由系統狀態欄中斷 VPN 連線（停止自動重連）")
+
+        _uiState.update {
+            it.copy(
+                phase = ConnectionPhase.DISCONNECTED,
+                statusTitle = "未連線",
+                statusDetail = "已由系統狀態欄中斷連線",
+                activeServer = null,
+                downloadBps = 0L,
+                uploadBps = 0L,
+                connectedSeconds = 0L,
+                attemptProgress = ""
+            )
+        }
+    }
+
     private fun startConnectionPipeline(preferredServer: VpnServer?) {
         userWantsConnected = true
         val sessionId = ++activeSessionId
@@ -624,6 +654,11 @@ class VpnConnectionManager(private val appContext: Context) :
         val safeLevel = level ?: ConnectionStatus.UNKNOWN_LEVEL
 
         scope.launch {
+            if (safeState == "USER_VPN_REVOKED") {
+                onSystemVpnRevoked()
+                return@launch
+            }
+
             val pending = currentAttemptResult
             if (pending != null && !pending.isCompleted) {
                 when (safeLevel) {
